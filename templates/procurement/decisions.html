@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block page_title %}قرارات المدير{% endblock %}
+
+{% block content %}
+<div class="space-y-4 md:space-y-6">
+    <!-- Header -->
+    <div>
+        <h1 class="text-xl md:text-2xl font-bold text-slate-800">قرارات المدير</h1>
+        <p class="text-sm md:text-base text-slate-500">عرض قرارات المدير على الطلبات المسعرة</p>
+    </div>
+    
+    <!-- Orders List -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100">
+        {% if page_obj %}
+        <div class="divide-y divide-slate-100">
+            {% for order in page_obj %}
+            <div class="p-3 md:p-5">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
+                    <!-- Order Info -->
+                    <div class="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center flex-shrink-0
+                            {% if order.status == 'approved' %}bg-green-100{% elif order.status == 'declined' %}bg-red-100{% elif order.status == 'acknowledged' %}bg-purple-100{% else %}bg-orange-100{% endif %}">
+                            <span class="font-bold text-sm md:text-base
+                                {% if order.status == 'approved' %}text-green-700{% elif order.status == 'declined' %}text-red-700{% elif order.status == 'acknowledged' %}text-purple-700{% else %}text-orange-700{% endif %}">
+                                #{{ order.id }}
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-medium text-slate-800 text-sm md:text-base truncate">{{ order.department.name }}</h3>
+                            <p class="text-xs md:text-sm text-slate-500">
+                                قرار: {{ order.decided_by }} | {{ order.decided_at|date:"Y/m/d - H:i" }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3 sm:justify-end">
+                        <span class="px-2 md:px-3 py-1 rounded-full text-xs font-medium {{ order.get_status_color }}">
+                            {{ order.get_status_display }}
+                        </span>
+                        
+                        {% if order.status != 'acknowledged' %}
+                        <a href="{% url 'procurement:acknowledge' order.id %}"
+                           class="px-3 md:px-4 py-1.5 md:py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs md:text-sm font-medium rounded-lg transition-colors">
+                            تم الإطلاع
+                        </a>
+                        {% endif %}
+                        
+                        {% if order.status == 'approved' or order.status == 'partially_approved' or order.status == 'acknowledged' %}
+                        {% if order.status != 'declined' %}
+                        <a href="{% url 'procurement:export_pdf' order.id %}"
+                           class="p-1.5 md:p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                           title="تصدير PDF">
+                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </a>
+                        {% endif %}
+                        {% endif %}
+                        
+                        <a href="{% url 'orders:detail' order.id %}"
+                           class="p-1.5 md:p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                {% if order.admin_notes %}
+                <div class="mt-2 md:mt-3 p-2 md:p-3 bg-yellow-50 rounded-lg border border-yellow-100">
+                    <p class="text-xs md:text-sm text-yellow-800">
+                        <span class="font-medium">ملاحظات المدير:</span>
+                        {{ order.admin_notes }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="p-3 md:p-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" 
+               class="px-3 md:px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-sm">
+                السابق
+            </a>
+            {% endif %}
+            
+            <span class="px-3 md:px-4 py-2 text-slate-600 text-sm">
+                صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" 
+               class="px-3 md:px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-sm">
+                التالي
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="p-6 md:p-8 text-center">
+            <svg class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <h3 class="text-base md:text-lg font-medium text-slate-800 mb-2">لا توجد قرارات</h3>
+            <p class="text-sm md:text-base text-slate-500">لا توجد قرارات من المدير حالياً</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

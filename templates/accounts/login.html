@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}تسجيل الدخول - نظام إدارة المشتريات{% endblock %}
+
+{% block auth_content %}
+<div class="w-full max-w-md px-4">
+    <!-- Logo Card -->
+    <div class="bg-white rounded-xl md:rounded-2xl shadow-2xl p-6 md:p-8">
+        <!-- Header -->
+        <div class="text-center mb-6 md:mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-primary-100 rounded-xl md:rounded-2xl mb-3 md:mb-4">
+                <svg class="w-7 h-7 md:w-8 md:h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+            </div>
+            <h1 class="text-xl md:text-2xl font-bold text-slate-800">نظام إدارة المشتريات</h1>
+            <p class="text-sm md:text-base text-slate-500 mt-2">قم بتسجيل الدخول للمتابعة</p>
+        </div>
+        
+        <!-- Login Form -->
+        <form method="post" class="space-y-4 md:space-y-5">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-3 md:px-4 py-2.5 md:py-3 rounded-lg text-sm">
+                {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div>
+                <label for="id_username" class="block text-sm font-medium text-slate-700 mb-1.5 md:mb-2">
+                    {{ form.username.label }}
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <p class="mt-1 text-xs md:text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="id_password" class="block text-sm font-medium text-slate-700 mb-1.5 md:mb-2">
+                    {{ form.password.label }}
+                </label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                <p class="mt-1 text-xs md:text-sm text-red-600">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <button type="submit" 
+                    class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 md:py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm md:text-base">
+                <span>تسجيل الدخول</span>
+                <svg class="w-4 h-4 md:w-5 md:h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+            </button>
+        </form>
+    </div>
+    
+    <!-- Footer -->
+    <p class="text-center text-white/60 text-xs md:text-sm mt-4 md:mt-6">
+        جميع الحقوق محفوظة © 2026
+    </p>
+</div>
+{% endblock %}

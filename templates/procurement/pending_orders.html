@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block page_title %}طلبات بانتظار التسعير{% endblock %}
+
+{% block content %}
+<div class="space-y-4 md:space-y-6">
+    <!-- Header -->
+    <div>
+        <h1 class="text-xl md:text-2xl font-bold text-slate-800">طلبات بانتظار التسعير</h1>
+        <p class="text-sm md:text-base text-slate-500">قم بتسعير المواد في الطلبات وإرسالها للمدير</p>
+    </div>
+    
+    <!-- Orders List -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100">
+        {% if page_obj %}
+        <div class="divide-y divide-slate-100">
+            {% for order in page_obj %}
+            <a href="{% url 'procurement:price_order' order.id %}" class="block p-3 md:p-5 hover:bg-slate-50 transition-colors">
+                <div class="flex items-start sm:items-center gap-3 md:gap-4">
+                    <!-- Order ID Badge -->
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-yellow-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span class="text-yellow-700 font-bold text-sm md:text-base">#{{ order.id }}</span>
+                    </div>
+                    
+                    <!-- Order Info -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <div class="min-w-0">
+                                <h3 class="font-medium text-slate-800 text-sm md:text-base truncate">{{ order.department.name }}</h3>
+                                <p class="text-xs md:text-sm text-slate-500">من: {{ order.created_by }} | {{ order.created_at|date:"Y/m/d - H:i" }}</p>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4">
+                                <span class="px-2 md:px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    {{ order.total_items }} مواد
+                                </span>
+                                <svg class="w-4 h-4 md:w-5 md:h-5 text-slate-400 rotate-180 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="p-3 md:p-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" 
+               class="px-3 md:px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-sm">
+                السابق
+            </a>
+            {% endif %}
+            
+            <span class="px-3 md:px-4 py-2 text-slate-600 text-sm">
+                صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" 
+               class="px-3 md:px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-sm">
+                التالي
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="p-6 md:p-8 text-center">
+            <svg class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <h3 class="text-base md:text-lg font-medium text-slate-800 mb-2">لا توجد طلبات</h3>
+            <p class="text-sm md:text-base text-slate-500">لا توجد طلبات بانتظار التسعير حالياً</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

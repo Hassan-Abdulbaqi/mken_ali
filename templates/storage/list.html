@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block page_title %}المخزن{% endblock %}
+
+{% block content %}
+<div class="space-y-4 md:space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-xl md:text-2xl font-bold text-slate-800">المخزن</h1>
+            <p class="text-sm md:text-base text-slate-500">إدارة مواد المخزن</p>
+        </div>
+        {% if can_manage %}
+        <a href="{% url 'storage:add' %}" 
+           class="inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 md:px-5 py-2.5 rounded-lg transition-colors w-full sm:w-auto">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>إضافة مادة</span>
+        </a>
+        {% endif %}
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 md:p-6">
+        <form method="get" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5 md:mb-2">الفرع</label>
+                <select name="branch" id="branch-filter"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 text-sm md:text-base"
+                        onchange="this.form.submit()">
+                    <option value="">جميع الفروع</option>
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}" {% if selected_branch == branch.id|stringformat:"s" %}selected{% endif %}>
+                        {{ branch.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5 md:mb-2">الشعبة</label>
+                <select name="department" id="department-filter"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 text-sm md:text-base"
+                        onchange="this.form.submit()">
+                    <option value="">جميع الشعب</option>
+                    {% for department in departments %}
+                    <option value="{{ department.id }}" {% if selected_department == department.id|stringformat:"s" %}selected{% endif %}>
+                        {{ department.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5 md:mb-2">البحث</label>
+                <input type="text" name="search" value="{{ search_query }}"
+                       placeholder="ابحث عن مادة..."
+                       class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 text-sm md:text-base">
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-sm md:text-base">
+                    بحث
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Items List -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100">
+        {% if page_obj %}
+        
+        <!-- Mobile Card View -->
+        <div class="md:hidden divide-y divide-slate-100">
+            {% for item in page_obj %}
+            <div class="p-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0 flex-1">
+                        <p class="font-medium text-slate-800 text-sm">{{ item.name }}</p>
+                        {% if item.description %}
+                        <p class="text-xs text-slate-500 truncate mt-0.5">{{ item.description }}</p>
+                        {% endif %}
+                        <div class="flex flex-wrap gap-2 mt-2 text-xs text-slate-500">
+                            <span>{{ item.branch.name }}</span>
+                            <span>•</span>
+                            <span>{{ item.department.name }}</span>
+                            <span>•</span>
+                            <span>{{ item.created_at|date:"Y/m/d" }}</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                        <span class="inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-medium
+                            {% if item.quantity == 0 %}bg-red-100 text-red-800{% elif item.quantity < 10 %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ item.quantity }}
+                        </span>
+                        {% if can_manage %}
+                        <div class="flex items-center gap-1">
+                            <a href="{% url 'storage:edit' item.id %}" 
+                               class="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                               title="تعديل">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </a>
+                            <a href="{% url 'storage:delete' item.id %}" 
+                               class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                               title="حذف">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Desktop Table View -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                        <th class="text-right px-6 py-4 text-sm font-medium text-slate-600">المادة</th>
+                        <th class="text-right px-6 py-4 text-sm font-medium text-slate-600">الكمية</th>
+                        <th class="text-right px-6 py-4 text-sm font-medium text-slate-600">الفرع</th>
+                        <th class="text-right px-6 py-4 text-sm font-medium text-slate-600">الشعبة</th>
+                        <th class="text-right px-6 py-4 text-sm font-medium text-slate-600">تاريخ الإضافة</th>
+                        {% if can_manage %}
+                        <th class="text-center px-6 py-4 text-sm font-medium text-slate-600">إجراءات</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for item in page_obj %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div>
+                                <p class="font-medium text-slate-800">{{ item.name }}</p>
+                                {% if item.description %}
+                                <p class="text-sm text-slate-500 truncate max-w-xs">{{ item.description }}</p>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center justify-center w-12 h-8 rounded-lg 
+                                {% if item.quantity == 0 %}bg-red-100 text-red-800{% elif item.quantity < 10 %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %} font-medium">
+                                {{ item.quantity }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600">{{ item.branch.name }}</td>
+                        <td class="px-6 py-4 text-slate-600">{{ item.department.name }}</td>
+                        <td class="px-6 py-4 text-slate-500 text-sm">{{ item.created_at|date:"Y/m/d" }}</td>
+                        {% if can_manage %}
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{% url 'storage:edit' item.id %}" 
+                                   class="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                   title="تعديل">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </a>
+                                <a href="{% url 'storage:delete' item.id %}" 
+                                   class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                   title="حذف">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="p-3 md:p-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}{% if selected_department %}&department={{ selected_department }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="px-3 md:px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-sm">
+                السابق
+            </a>
+            {% endif %}
+            
+            <span class="px-3 md:px-4 py-2 text-slate-600 text-sm">
+                صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}{% if selected_department %}&department={{ selected_department }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="px-3 md:px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-sm">
+                التالي
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="p-6 md:p-8 text-center">
+            <svg class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+            </svg>
+            <h3 class="text-base md:text-lg font-medium text-slate-800 mb-2">لا توجد مواد</h3>
+            <p class="text-sm md:text-base text-slate-500">لا توجد مواد في المخزن حالياً</p>
+            {% if can_manage %}
+            <a href="{% url 'storage:add' %}" class="inline-flex items-center gap-2 mt-4 bg-primary-600 hover:bg-primary-700 text-white px-4 md:px-5 py-2.5 rounded-lg transition-colors text-sm md:text-base">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>إضافة مادة جديدة</span>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
