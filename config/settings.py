@@ -9,12 +9,25 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-change-this-in-production-xk9s8d7f6g5h4j3k2l1'
+# For production, set the SECRET_KEY environment variable
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-this-in-production-xk9s8d7f6g5h4j3k2l1')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'localhost', 
+    '127.0.0.1',
+    'nullbyte-iq.com',
+    'www.nullbyte-iq.com',
+    '.pythonanywhere.com',
+]
+
+# CSRF trusted origins for production
+CSRF_TRUSTED_ORIGINS = [
+    'https://nullbyte-iq.com',
+    'https://www.nullbyte-iq.com',
+]
 
 # Application definition
 INSTALLED_APPS = [

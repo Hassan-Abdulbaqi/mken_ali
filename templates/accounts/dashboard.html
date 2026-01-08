@@ -135,7 +135,7 @@
                 </div>
                 <div class="min-w-0">
                     <p class="text-xl md:text-2xl font-bold text-slate-800">{{ stats.pending_pricing }}</p>
-                    <p class="text-xs md:text-sm text-slate-500 truncate">بانتظار التسعير</p>
+                    <p class="text-xs md:text-sm text-slate-500 truncate">بانتظار التحويل</p>
                 </div>
             </div>
         </div>
@@ -194,7 +194,7 @@
     {% if pending_pricing %}
     <div class="bg-white rounded-xl shadow-sm border border-slate-100">
         <div class="p-4 md:p-6 border-b border-slate-100">
-            <h2 class="text-base md:text-lg font-bold text-slate-800">طلبات بانتظار التسعير</h2>
+            <h2 class="text-base md:text-lg font-bold text-slate-800">طلبات بانتظار التحويل</h2>
         </div>
         <div class="divide-y divide-slate-100">
             {% for order in pending_pricing %}

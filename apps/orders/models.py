@@ -85,12 +85,12 @@ class Order(models.Model):
         null=True,
         blank=True,
         related_name='priced_orders',
-        verbose_name='تم التسعير بواسطة'
+        verbose_name='تم التحويل بواسطة'
     )
     priced_at = models.DateTimeField(
         null=True,
         blank=True,
-        verbose_name='تاريخ التسعير'
+        verbose_name='تاريخ التحويل'
     )
     decided_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
